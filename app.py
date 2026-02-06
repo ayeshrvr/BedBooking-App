@@ -1,74 +1,93 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
+from streamlit_extras.bottom_container import bottom
 from datetime import datetime, timedelta
 
-# 1. Page Config
-st.set_page_config(page_title="Booking Manager", layout="centered")
+# 1. Setup Page
+st.set_page_config(page_title="Dashboard", layout="centered")
 
-# 2. Hiding the standard Streamlit top-bar/hamburger to keep it clean
-hide_st_style = """
-            <style>
-            header {visibility: hidden;}
-            footer {visibility: hidden;}
-            </style>
-            """
-st.markdown(hide_st_style, unsafe_allow_html=True)
+# 2. Custom CSS to match your screenshot (Dark theme, circular buttons)
+st.markdown("""
+    <style>
+    /* Hide top bar and footer */
+    header {visibility: hidden;}
+    footer {visibility: hidden;}
+    
+    /* Style the dashboard buttons to be circular and hollow */
+    div.stButton > button {
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        background-color: transparent;
+        border: 1.5px solid #4ec3ad;
+        color: #4ec3ad;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    div.stButton > button:hover {
+        border-color: #ffffff;
+        color: #ffffff;
+        background-color: transparent;
+    }
 
-# 3. THE BOTTOM NAVIGATION BAR
-# We place this at the bottom using a container
-with st.container():
-    st.write("---") # Visual separator
+    /* Adjusting container padding for mobile */
+    .block-container {
+        padding-top: 1rem;
+        padding-bottom: 5rem; /* Space for bottom nav */
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# 3. Bottom Navigation
+with bottom():
     selected = option_menu(
-        menu_title=None,  # No title needed for bottom nav
-        options=["Dashboard", "Guests", "Beds", "Bookings"], 
-        icons=["speedometer2", "people", "house-door", "calendar-event"], 
-        menu_icon="cast", 
-        default_index=0, 
+        menu_title=None,
+        options=["Dashboard", "Guests", "Beds", "Bookings"],
+        icons=["speedometer2", "people", "house-door", "calendar-event"],
+        default_index=0,
         orientation="horizontal",
         styles={
             "container": {"padding": "0!important", "background-color": "#000000"},
-            "icon": {"color": "#4ec3ad", "font-size": "20px"}, 
-            "nav-link": {"font-size": "14px", "text-align": "center", "margin":"0px", "--hover-color": "#262730"},
-            "nav-link-selected": {"background-color": "#262730"},
+            "icon": {"color": "#4ec3ad", "font-size": "18px"},
+            "nav-link": {"font-size": "12px", "text-align": "center", "margin":"0px", "color": "#7a7a7a"},
+            "nav-link-selected": {"background-color": "transparent", "color": "#4ec3ad"},
         }
     )
 
-# 4. PAGE LOGIC
+# 4. Page Content Logic
 if selected == "Dashboard":
-    st.title("Dashboard")
+    st.markdown("<h2 style='text-align: center; color: white;'>Dashboard</h2>", unsafe_allow_html=True)
     
-    # Your Date Switcher Logic
+    # Date Switcher Logic
     if 'view_date' not in st.session_state:
         st.session_state.view_date = datetime.now().date()
         
-    col1, col2 = st.columns([3, 2])
-    with col1:
-        st.subheader(st.session_state.view_date.strftime("%B %d, %Y"))
+    # Layout for Date and Buttons
+    col_date, col_btns = st.columns([2, 1])
     
-    with col2:
-        # Mini column layout for the three buttons in your screenshot
-        btn_col1, btn_col2, btn_col3 = st.columns(3)
-        with btn_col1:
-            if st.button("⬅️"):
+    with col_date:
+        st.write(f"### {st.session_state.view_date.strftime('%B %d, %Y')}")
+        
+    with col_btns:
+        b_col1, b_col2, b_col3 = st.columns(3)
+        with b_col1:
+            if st.button("˂"):
                 st.session_state.view_date -= timedelta(days=1)
                 st.rerun()
-        with btn_col2:
-            if st.button("🏠"):
+        with b_col2:
+            if st.button("⌂"):
                 st.session_state.view_date = datetime.now().date()
                 st.rerun()
-        with btn_col3:
-            if st.button("➡️"):
+        with b_col3:
+            if st.button("˃"):
                 st.session_state.view_date += timedelta(days=1)
                 st.rerun()
 
+    # Place your main dashboard data here
+    st.info("Your main content goes here...")
+
 elif selected == "Guests":
-    st.title("Guest Directory")
-    st.write("Manage your guest list here.")
-
-elif selected == "Beds":
-    st.title("Room/Bed Status")
-    st.write("View room availability.")
-
-elif selected == "Bookings":
-    st.title("All Bookings")
-    st.write("Complete history of reservations.")
+    st.title("Guests")
